@@ -16,14 +16,17 @@
 #include "SimbleeCOM.h"
 #include "SimbleeNetwork.h"
 
-SimbleeNetwork simbleeNetwork(3);
+SimbleeNetwork SimbleeNetwork;
 
-char payload[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+bool ACKed = false;
+
 int test = 0;
 unsigned long myESN;
 
+void waitForAck(uint32_t waitTime);
+
 void setup() {
-  SimbleeCOM.begin();
+  SimbleeNetwork.begin();
 
   SimbleeCOM.mode = LONG_RANGE;
   SimbleeCOM.txPowerLevel = +4; //default value is +4 (-20, -16, -12, -8, -4, 0, +4)
@@ -37,9 +40,64 @@ void setup() {
 
 void loop() {
   delay(1000);
-  test = simbleeNetwork.send(1, 1);
-  Serial.println(test);
-
+  
+  test = SimbleeNetwork.send(0x10, 0x2F178FC6);
+  Serial.println("message sending....");
+  waitForAck(1000);
   
 }
+
+
+void SimbleeCOM_onReceive(unsigned int esn, const char *payload, int len, int rssi)
+{
+  //check if this message is for us
+  bool messageIsForMe = SimbleeNetwork.checkAddress(payload);
+  if (messageIsForMe)
+  {
+    uint16_t data;
+    //check to see if this is an ack for a message we just sent
+    if (SimbleeNetwork.readDataType(payload) == 1)
+    {
+      ACKed = true;
+    }
+    //check for ACK payload data
+    //data = SimbleeNetwork.readData(payload);
+    //Serial.print("I received ACK message data: "); Serial.println(data, HEX);
+    else
+    {
+      //if not a simple ACK message, rad in the data being sent to us
+      data = SimbleeNetwork.readData(payload);
+      Serial.print("I received a message: "); Serial.println(data, HEX);
+    }
+  }
+  else
+  {
+    //Serial.println("That message wasn't for me");
+  }
+  
+}
+
+
+void waitForAck(uint32_t waitTime)
+{
+  uint32_t timeElapsed = millis();
+  while (!ACKed && ((millis() - timeElapsed) < waitTime))
+  {
+    //wait for ack
+  }
+  if (ACKed)
+  {
+    Serial.println("ACKed!");
+    ACKed = false;
+  }
+  else
+  {
+    Serial.println("not ACKed.... :(");
+  }
+}
+
+
+
+
+
   
