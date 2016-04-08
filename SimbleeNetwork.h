@@ -25,6 +25,8 @@
 //		Simblee examples, which use a 15 total byte packet		
 
 
+
+
 #include "Arduino.h"
 
 #ifndef SimbleeNetwork_h
@@ -34,8 +36,14 @@
 #include <stdint.h>
 
 //DATA_TYPE definitions
+#define NORMAL_DATA 0
 #define ACK 	1
+#define ADDRESS_SEARCH 2
+#define ADDRESS_RESPONSE 3
 
+#define MAX_GROUP_SIZE 6
+
+#define ACK_WAIT_TIME 20 //test this to see if we get good responses. 
 
 
 class SimbleeNetwork
@@ -77,13 +85,30 @@ class SimbleeNetwork
 	//function to send an ACK back to a node to acknowledge packet transmission
 	bool sendACK(uint32_t targetAddress);
 
+	//add new ESNs to our known network list
+	int addESN(uint32_t ESN);
+
+	//search for new addresses of lights to add to our group.
+	int searchForAddress(uint32_t targetAddress);
+
+	//pull the SENDER_ID from a payload
+	uint32_t findSender(const char* payload);
+
+	//send our address in response to an address request
+	int sendAddress(uint16_t data, uint32_t targetAddress);
+
+	//check our known ESNs to see if we already know about this one
+	bool isAddressKnown(uint32_t ESN);
+
 	//variable to store this radio's ESN (ID)
 	uint32_t myESN;
 
 	//array stores all the ESNs that belong to a group. groupESNs[0] is reserved for the 
 	//ESN of the master node and establishes the GROUP_ID
-	uint32_t groupESNs[6];
+	//TO DO: put this in EEPROM so that we don't lose addresses on a reset
+	uint32_t groupESNs[MAX_GROUP_SIZE] = {0,0,0,0,0,0};
 
+	bool iAmMaster = false;
 
 	private:
 
@@ -96,8 +121,6 @@ class SimbleeNetwork
 	char GROUP_ID_1;
 	char GROUP_ID_2;
 	char GROUP_ID_3;
-
-
 
 };
 
