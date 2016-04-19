@@ -100,7 +100,7 @@ bool SimbleeNetwork::send(uint16_t data, uint32_t targetAddress)
 
 
 }
-
+ 
 const uint32_t* SimbleeNetwork::sendToAllAddresses(uint16_t data)
 {	
 	int numberOfNodes = 0;	

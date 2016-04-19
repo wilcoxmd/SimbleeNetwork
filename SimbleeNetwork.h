@@ -133,7 +133,7 @@ class SimbleeNetwork
 	//is returned by sendToAllAdresses() so that we can know which nodes 
 	//did not receive our message
 	uint32_t missedAcks[MAX_GROUP_SIZE] = {0,0,0,0,0,0};
-
+  
 
 	bool iAmMaster = false;
 
