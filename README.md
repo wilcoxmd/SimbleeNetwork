@@ -1,6 +1,9 @@
 # SimbleeNetwork
 Additional network topology definitions and control for Simblee devices
 
+## WARNING 
+Simblee modules were recently end-of-lifed by RF Digital. I would not recommend starting a new project with them.
+
 ## Info
 This is a library to add to any Simblee project where you need more than just point to point communication.
 
